@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[]) {
     FILE *in;
-    char *temp;
+    char temp[40];
     int *unsorted, i;
     struct stat st;
 
@@ -24,12 +24,14 @@ int main(int argc, char *argv[]) {
     }
 
     stat(argv[1], &st);
-    int *unsorted = (int *)malloc(st.st_size);
+    unsorted = (int *)malloc(st.st_size);
     i = 0;
+
     while (fgets(temp, 40, in) != NULL) {
-        unsorted[i] = stoi(temp);
+        unsorted[i] = atoi(temp);
         i++;
     }
 
+    free(unsorted);
     return 0;
 }
