@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 #include <time.h>
 #include <sys/stat.h>
 #include <pthread.h>
@@ -9,7 +10,9 @@ int *unsorted;
 int *sorted;
 
 int comparator(const void *int1, const void *int2);
-void single_thread(int *unsorted, int length);
+void single_thread(int length);
+void multi_thread(int length);
+void *sort_half(void *param);
 void *merge();
 
 int main(int argc, char *argv[]) {
@@ -17,8 +20,6 @@ int main(int argc, char *argv[]) {
     char temp[40];
     int i;
     struct stat st;
-    pthread_t tid = 2;
-    pthread_attr_t attr;
 
     if (argc != 2) {
         fprintf(stderr, "Usage: %s filename\n", argv[0]);
@@ -43,12 +44,10 @@ int main(int argc, char *argv[]) {
         i++;
     }
 
-    single_thread(unsorted, i);
 
-    // Set up merge thread
-    pthread_attr_init(&attr);
-    pthread_create(&tid, &attr, merge, NULL);
-    pthread_join(tid, NULL);
+    single_thread(i);
+    multi_thread(i);
+
     printf("done\n");
 
     printf("SORTED\n");
@@ -56,13 +55,40 @@ int main(int argc, char *argv[]) {
     for (i = 0; i < 10; i++) {
         printf("%d\n", sorted[i]);
     }
-
     //free(unsorted);
     //free(sorted);
     return 0;
 }
 
-void single_thread(int *unsorted, int length) {
+void multi_thread(int length) {
+    int i;
+    pthread_t first_half, second_half, merge_thread;
+
+    int first_params[2] = {0, length/2};
+    int second_params[2] = {length/2, (length - length/2)};
+
+    pthread_create(&first_half, NULL, sort_half, first_params);
+    pthread_create(&second_half, NULL, sort_half, second_params);
+
+    pthread_join(first_half, NULL);
+    pthread_join(second_half, NULL);
+
+    for (i = 0; i < length; i++)
+        printf("%d\n", unsorted[i]);
+    printf("%d\n", i);
+
+    // Run merge thread
+    pthread_create(&merge_thread, NULL, merge, NULL);
+    pthread_join(merge_thread, NULL);
+}
+
+void *sort_half(void *param) {
+    qsort(&unsorted[((int *)param)[0]], ((int *)param)[1], sizeof(int), comparator);
+    pthread_exit(0);
+}
+
+void single_thread(int length) {
+    int i;
     int *unsorted_copy = (int *)malloc(length * sizeof(int));
     struct timespec start, finish;
     double elapsed;
@@ -71,6 +97,9 @@ void single_thread(int *unsorted, int length) {
     clock_gettime(CLOCK_MONOTONIC, &start);
     qsort(unsorted_copy, length, sizeof(int), comparator);
     clock_gettime(CLOCK_MONOTONIC, &finish);
+
+    for (i = 0; i < length; i++)
+        printf("%d\n", unsorted_copy[i]);
 
     elapsed = (finish.tv_sec - start.tv_sec);
     elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
