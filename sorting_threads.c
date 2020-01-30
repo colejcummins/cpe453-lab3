@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 
 int *unsorted;
+int *sorted;
 
 int comparator(const void *int1, const void *int2);
 void single_thread(int length);
@@ -13,9 +14,9 @@ void multi_thread(int length);
 void *sort_half(void *param);
 
 int main(int argc, char *argv[]) {
-    FILE *in;
+    FILE *in, *out;
     char temp[40];
-    int i;
+    int i, j;
     struct stat st;
 
     if (argc != 2) {
@@ -33,7 +34,8 @@ int main(int argc, char *argv[]) {
     }
 
     stat(argv[1], &st);
-    unsorted = (int *)malloc(st.st_size);
+    unsorted = (int *)malloc(st.st_size * 2);
+    unsorted = (int *)malloc(st.st_size * 2);
     i = 0;
 
     while (fgets(temp, 40, in) != NULL) {
@@ -43,6 +45,18 @@ int main(int argc, char *argv[]) {
 
     single_thread(i);
     multi_thread(i);
+
+    out = fopen("sorted.txt", "w+");
+
+    char str[20];
+    for(int j = 0; j < i; j++) {
+        sprintf(str, "%d\n");
+        fputs(str, out);
+        memeset(str, 0, 20);
+    }
+
+    fclose(out);
+
     //free(unsorted);
     return 0;
 }
