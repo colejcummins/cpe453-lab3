@@ -44,19 +44,14 @@ int main(int argc, char *argv[]) {
         i++;
     }
 
-
     single_thread(i);
     multi_thread(i);
 
-    printf("done\n");
+    // printf("SORTED\n");
 
-    printf("SORTED\n");
-
-    for (j = 0; j < i; j++) {
-        printf("%d\n", sorted[j]);
-    }
-    //free(unsorted);
-    //free(sorted);
+    // for (j = 0; j < i; j++) {
+    //     printf("%d\n", sorted[j]);
+    // }
     return 0;
 }
 
@@ -93,7 +88,6 @@ void *sort_half(void *param) {
 }
 
 void single_thread(int length) {
-    int i;
     int *unsorted_copy = (int *)malloc(length * sizeof(int));
     struct timespec start, finish;
     double elapsed;
@@ -103,13 +97,9 @@ void single_thread(int length) {
     qsort(unsorted_copy, length, sizeof(int), comparator);
     clock_gettime(CLOCK_MONOTONIC, &finish);
 
-    for (i = 0; i < length; i++)
-        printf("%d\n", unsorted_copy[i]);
-
     elapsed = (finish.tv_sec - start.tv_sec);
     elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
     printf("Single-threaded sorting takes %f sec\n", elapsed);
-    //free(unsorted_copy);
 }
 
 int comparator(const void *int1, const void *int2) {
@@ -118,8 +108,6 @@ int comparator(const void *int1, const void *int2) {
 
 // Will be run in a seperate thread to merge two sorted lists
 void *merge(void *param) {
-    printf("Merging!!!\n");
-
     int start1 = 0;
     int end1 = ((int *)param)[0];
 
