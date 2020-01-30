@@ -35,9 +35,8 @@ int main(int argc, char *argv[]) {
     }
 
     stat(argv[1], &st);
-    unsorted = (int *)malloc(st.st_size);
-    sorted = (int *)malloc(st.st_size);
-    i = 0;
+    unsorted = (int *)malloc(st.st_size * 2);
+    sorted = (int *)malloc(st.st_size * 2);
 
     while (fgets(temp, 40, in) != NULL) {
         unsorted[i] = atoi(temp);
@@ -51,6 +50,12 @@ int main(int argc, char *argv[]) {
     pthread_create(&tid, &attr, merge, NULL);
     pthread_join(tid, NULL);
     printf("done\n");
+
+    printf("SORTED\n");
+
+    for (i = 0; i < 10; i++) {
+        printf("%d\n", sorted[i]);
+    }
 
     //free(unsorted);
     //free(sorted);
@@ -80,5 +85,38 @@ int comparator(const void *int1, const void *int2) {
 // Will be run in a seperate thread to merge two sorted lists
 void *merge() {
     printf("Merging!!!\n");
+
+    int start1 = 0;
+    int end1 = 5;
+
+    int start2 = 5;
+    int end2 = 10;
+
+    int i = 0; // Keep track of our spot in the sorted list
+
+    while (start1 < end1 && start2 < end2) {
+        if (unsorted[start1] < unsorted[start2]) {
+            sorted[i] = unsorted[start1];
+            start1++;
+        } else {
+            sorted[i] = unsorted[start2];
+            start2++;
+        }
+
+        i++;
+    }
+    
+    while (start1 < end1) {
+        sorted[i] = unsorted[start1];
+        start1++;
+        i++;
+    }
+
+    while (start2 < end2) {
+        sorted[i] = unsorted[start2];
+        start2++;
+        i++;
+    }
+
     pthread_exit(0);
 }
