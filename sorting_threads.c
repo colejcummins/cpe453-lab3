@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 
 int *unsorted;
+int *sorted;
 
 int comparator(const void *int1, const void *int2);
 void single_thread(int *unsorted, int length);
@@ -31,6 +32,7 @@ int main(int argc, char *argv[]) {
 
     stat(argv[1], &st);
     unsorted = (int *)malloc(st.st_size);
+    sorted = (int *)malloc(st.st_size);
     i = 0;
 
     while (fgets(temp, 40, in) != NULL) {
@@ -40,6 +42,7 @@ int main(int argc, char *argv[]) {
 
     single_thread(unsorted, i);
     //free(unsorted);
+    //free(sorted);
     return 0;
 }
 
