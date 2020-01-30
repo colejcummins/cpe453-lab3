@@ -51,10 +51,10 @@ int main(int argc, char *argv[]) {
     out = fopen("sorted.txt", "w+");
 
     char str[20];
-    for(int j = 0; j < i; j++) {
-        sprintf(str, "%d\n");
+    for(j = 0; j < i; j++) {
+        sprintf(str, "%d\n", sorted[j]);
         fputs(str, out);
-        memeset(str, 0, 20);
+        memset(str, 0, 20);
     }
 
     fclose(out);
