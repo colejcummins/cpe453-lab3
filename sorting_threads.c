@@ -18,7 +18,7 @@ void *merge(void *param);
 int main(int argc, char *argv[]) {
     FILE *in;
     char temp[40];
-    int i, j;
+    int i;
     struct stat st;
 
     if (argc != 2) {
