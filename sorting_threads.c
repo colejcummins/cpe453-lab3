@@ -13,12 +13,12 @@ int comparator(const void *int1, const void *int2);
 void single_thread(int length);
 void multi_thread(int length);
 void *sort_half(void *param);
-void *merge();
+void *merge(void *param);
 
 int main(int argc, char *argv[]) {
     FILE *in;
     char temp[40];
-    int i;
+    int i, j;
     struct stat st;
 
     if (argc != 2) {
@@ -52,8 +52,8 @@ int main(int argc, char *argv[]) {
 
     printf("SORTED\n");
 
-    for (i = 0; i < 10; i++) {
-        printf("%d\n", sorted[i]);
+    for (j = 0; j < i; j++) {
+        printf("%d\n", sorted[j]);
     }
     //free(unsorted);
     //free(sorted);
@@ -66,6 +66,7 @@ void multi_thread(int length) {
 
     int first_params[2] = {0, length/2};
     int second_params[2] = {length/2, (length - length/2)};
+    int merge_params[2] = {length/2, length};
 
     pthread_create(&first_half, NULL, sort_half, first_params);
     pthread_create(&second_half, NULL, sort_half, second_params);
@@ -78,7 +79,7 @@ void multi_thread(int length) {
     printf("%d\n", i);
 
     // Run merge thread
-    pthread_create(&merge_thread, NULL, merge, NULL);
+    pthread_create(&merge_thread, NULL, merge, merge_params);
     pthread_join(merge_thread, NULL);
 }
 
@@ -112,14 +113,14 @@ int comparator(const void *int1, const void *int2) {
 }
 
 // Will be run in a seperate thread to merge two sorted lists
-void *merge() {
+void *merge(void *param) {
     printf("Merging!!!\n");
 
     int start1 = 0;
-    int end1 = 5;
+    int end1 = ((int *)param)[0];
 
-    int start2 = 5;
-    int end2 = 10;
+    int start2 = ((int *)param)[0];
+    int end2 = ((int *)param)[1];
 
     int i = 0; // Keep track of our spot in the sorted list
 
